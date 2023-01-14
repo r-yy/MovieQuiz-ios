@@ -3,6 +3,10 @@ import UIKit
 final class MovieQuizViewController: UIViewController {
     // MARK: - Lifecycle
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+          return .lightContent
+    }
+    
     struct QuizStepViewModel {
         let image: UIImage
         let text: String
@@ -70,18 +74,22 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet weak private var imageView: UIImageView!
     @IBOutlet weak private var textLabel: UILabel!
     @IBOutlet weak private var counterLabel: UILabel!
+    @IBOutlet weak private var noButton: UIButton!
+    @IBOutlet weak private var yesButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         let viewModel = convert(model: currentQuestion())
+        imageView.layer.masksToBounds = true
+        imageView.layer.cornerRadius = 20
         show(quiz: viewModel)
     }
     
-    @IBAction private func noAction(_ sender: UIButton) {
+    @IBAction private func noButtonPressed(_ sender: UIButton) {
         showAnswerResult(isCorrect: false == currentQuestion().correctAnswer)
     }
     
-    @IBAction private func yesAction(_ sender: UIButton) {
+    @IBAction private func yesButtonPressed(_ sender: UIButton) {
         showAnswerResult(isCorrect: true == currentQuestion().correctAnswer)
     }
     
@@ -120,6 +128,9 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func showAnswerResult(isCorrect: Bool) {
+        
+        buttonsEnable(isEnabled: false)
+        
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
         imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
@@ -134,6 +145,7 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func showNextQuestionOrResults() {
+        buttonsEnable(isEnabled: true)
         if currentQuestionIndex == questions.count - 1 {
             let text = "Ваш результат: \(correctAnswers) из 10"
             let viewModel = QuizResultViewModel(
@@ -151,6 +163,16 @@ final class MovieQuizViewController: UIViewController {
     
     private func currentQuestion() -> QuizQuestion {
         return questions[currentQuestionIndex]
+    }
+    
+    private func buttonsEnable(isEnabled: Bool) {
+        if isEnabled {
+            noButton.isEnabled = true
+            yesButton.isEnabled = true
+        } else {
+            noButton.isEnabled = false
+            yesButton.isEnabled = false
+        }
     }
 }
 
