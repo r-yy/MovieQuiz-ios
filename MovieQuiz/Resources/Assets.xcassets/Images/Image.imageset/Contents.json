@@ -1,11 +1,12 @@
 {
   "images" : [
     {
-      "filename" : "Background.png",
+      "filename" : "Defolt.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "Defolt 1.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
