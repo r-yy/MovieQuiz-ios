@@ -8,16 +8,11 @@
 import Foundation
 import UIKit
 
-class AlertPresenter: UIViewController {
-    //var correctAnswers = MovieQuizViewController().correctAnswers
-    var questionFactory: QuestionFactoryProtocol?
-    
-    var viewModel: AlertModel = AlertModel(title: "Ваш результат: 1 из 10",
-                                           message: "Этот раунд окончен!",
-                                           buttonText: "Сыграть еще раз")
-        
-        
+class AlertPresenter {
 
+    private var viewModel: AlertModel?
+    var viewController: UIViewController?
+        
     func show(quiz result: AlertModel) {
 
         let alert = UIAlertController(
@@ -26,15 +21,12 @@ class AlertPresenter: UIViewController {
             preferredStyle: .alert)
 
         let action = UIAlertAction(
-            title: result.buttonText, style: .default, handler: { [weak self] _ in
-            guard let self = self else { return }
-
-            self.questionFactory?.requestNextQuestion()
+            title: result.buttonText, style: .default, handler: { _ in
+                result.completition?()
         })
 
         alert.addAction(action)
-
-        self.present(alert, animated: true, completion: nil)
+        viewController?.present(alert, animated: true, completion: nil)
     }
-    
 }
+

@@ -19,7 +19,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private let questionsAmount: Int = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
-    private var alertPresenter: AlertPresenter?
+    private var alertPresenter: AlertPresenter = AlertPresenter()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,6 +27,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         imageView.layer.cornerRadius = 20
         questionFactory = QuestionFactory(delegate: self)
         questionFactory?.requestNextQuestion()
+        alertPresenter.viewController = self
     }
     
     //MARK: - QuestionFactoryDelegate
@@ -106,12 +107,19 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private func showNextQuestionOrResults() {
         buttonsEnable(isEnabled: true)
         if currentQuestionIndex == questionsAmount - 1 {
-            //let text = "Ваш результат: \(correctAnswers) из 10"
-            func show(alert: AlertPresenter?) {
-                guard let alert1 = alert else { return }
-                alertPresenter = alert1
-                alertPresenter?.show(quiz: alertPresenter!.viewModel)
+            let quizResultModel = QuizResultViewModel(title: "Ваш результат: \(correctAnswers) из 10",
+                                                      text: "Этот раунд окончен!",
+                                                      buttonText: "Сыграть еще раз")
+            
+            var alertModel = convertToAlertModel(model: quizResultModel)
+            currentQuestionIndex = 0
+            correctAnswers = 0
+            alertModel.completition = {
+                self.imageView.layer.borderWidth = 0
+                self.questionFactory?.requestNextQuestion()
             }
+            alertPresenter.show(quiz: alertModel)
+            
         } else {
             currentQuestionIndex += 1
             self.imageView.layer.borderWidth = 0
@@ -127,6 +135,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             noButton.isEnabled = false
             yesButton.isEnabled = false
         }
+    }
+    
+    private func convertToAlertModel(model: QuizResultViewModel) -> AlertModel {
+        return AlertModel(
+            title: model.title,
+            message: model.text,
+            buttonText: model.buttonText
+        )
     }
 }
 

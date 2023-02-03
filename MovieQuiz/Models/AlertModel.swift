@@ -8,9 +8,9 @@
 import Foundation
 
 struct AlertModel {
-    let title: String
+    var title: String
     var message: String
-    let buttonText: String
-    var completition: () -> () = {}
+    var buttonText: String
+    var completition: (() -> Void)?
     
 }
