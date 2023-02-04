@@ -19,7 +19,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private let questionsAmount: Int = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
-    private var alertPresenter: AlertPresenter = AlertPresenter()
+    private var alertPresenter: AlertProtocol?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,7 +27,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         imageView.layer.cornerRadius = 20
         questionFactory = QuestionFactory(delegate: self)
         questionFactory?.requestNextQuestion()
-        alertPresenter.viewController = self
+        alertPresenter = AlertPresenter()
+        alertPresenter?.viewController = self
     }
     
     //MARK: - QuestionFactoryDelegate
@@ -112,13 +113,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                                                       buttonText: "Сыграть еще раз")
             
             var alertModel = convertToAlertModel(model: quizResultModel)
-            currentQuestionIndex = 0
-            correctAnswers = 0
-            alertModel.completition = {
+            
+            alertModel.completition = { [weak self] in
+                guard let self = self else { return }
                 self.imageView.layer.borderWidth = 0
+                self.currentQuestionIndex = 0
+                self.correctAnswers = 0
                 self.questionFactory?.requestNextQuestion()
             }
-            alertPresenter.show(quiz: alertModel)
+            alertPresenter?.show(quiz: alertModel)
             
         } else {
             currentQuestionIndex += 1
