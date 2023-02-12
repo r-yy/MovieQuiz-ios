@@ -29,4 +29,3 @@ class AlertPresenter: AlertProtocol {
         viewController?.present(alert, animated: true, completion: nil)
     }
 }
-

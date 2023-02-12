@@ -16,20 +16,37 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet weak private var noButton: UIButton!
     @IBOutlet weak private var yesButton: UIButton!
     
-    private let questionsAmount: Int = 10
+    let questionsAmount: Int = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
     private var alertPresenter: AlertProtocol?
+    private var statistic: StatisticService?
+    
+//    Закомментировал промежуточные задания, не связанные с финальным проектом 5-го спринта
+//    private var getMovieModel: GetMovieProtocol?
+//    private var movie: Top?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        print(Bundle.main.bundlePath)
+        
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 20
+        
         questionFactory = QuestionFactory(delegate: self)
         questionFactory?.requestNextQuestion()
+        
         alertPresenter = AlertPresenter()
         alertPresenter?.viewController = self
+        
+        statistic = StatisticServiceImplementation()
+        
+//        Закомментировал промежуточные задания, не связанные с финальным проектом 5-го спринта
+//        var documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+//        let fileName = "top250MoviesIMDB.json"
+//        documentsURL.appendPathComponent(fileName)
+//        let jsonString = try? String(contentsOf: documentsURL)
+//        getMovieModel = GetMovieService()
+//        movie = getMovieModel?.getMovie(from: jsonString?)
     }
     
     //MARK: - QuestionFactoryDelegate
@@ -86,11 +103,22 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private func showNextQuestionOrResults() {
         buttonsEnable(isEnabled: true)
+        
         if currentQuestionIndex == questionsAmount - 1 {
-            let quizResultModel = QuizResultViewModel(title: "Ваш результат: \(correctAnswers) из 10",
-                                                      text: "Этот раунд окончен!",
-                                                      buttonText: "Сыграть еще раз")
+            guard let gamesCount = statistic?.gamesCount,
+                  let correct = statistic?.bestGame.correct,
+                  let total = statistic?.bestGame.total,
+                  let bestGameDate = statistic?.bestGame.date.dateTimeString,
+                  let totalAccuracy = statistic?.totalAccuracy else {
+                return
+            }
+            let record = "\(correct)/\(total)"
+            let quizResultModel = QuizResultViewModel(
+                title: "Этот раунд окончен!",
+                text: "Ваш результат: \(correctAnswers)/\(questionsAmount)\n Количество сыгранных квизов: \(gamesCount)\n Рекорд: \(record) (\(bestGameDate))\n Средняя точность: \(String(format: "%.2f", totalAccuracy))%",
+                buttonText: "Сыграть еще раз")
             
+            statistic?.store(correct: correctAnswers, total: questionsAmount)
             var alertModel = convertToAlertModel(model: quizResultModel)
             
             alertModel.completition = { [weak self] in
@@ -126,4 +154,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             buttonText: model.buttonText
         )
     }
+    
+    
 }
