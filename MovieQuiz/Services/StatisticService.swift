@@ -9,8 +9,6 @@ import Foundation
 
 final class StatisticServiceImplementation: StatisticService {
     
-    private var movieQuiz: MovieQuizViewController?
-    
     private enum Keys: String {
         case correct, totalAccuracy, bestGame, gamesCount
     }

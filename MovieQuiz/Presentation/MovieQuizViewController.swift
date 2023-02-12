@@ -19,7 +19,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     let questionsAmount: Int = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
-    private var alertPresenter: AlertProtocol?
+    private var resultAlertPresenter: AlertProtocol?
     private var statistic: StatisticService?
     
 //    Закомментировал промежуточные задания, не связанные с финальным проектом 5-го спринта
@@ -35,8 +35,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         questionFactory = QuestionFactory(delegate: self)
         questionFactory?.requestNextQuestion()
         
-        alertPresenter = AlertPresenter()
-        alertPresenter?.viewController = self
+        resultAlertPresenter = ResultAlertPresenter()
+        resultAlertPresenter?.viewController = self
         
         statistic = StatisticServiceImplementation()
         
@@ -128,7 +128,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 self.correctAnswers = 0
                 self.questionFactory?.requestNextQuestion()
             }
-            alertPresenter?.show(quiz: alertModel)
+            resultAlertPresenter?.show(quiz: alertModel)
             
         } else {
             currentQuestionIndex += 1

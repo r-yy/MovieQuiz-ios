@@ -8,9 +8,8 @@
 import Foundation
 import UIKit
 
-class AlertPresenter: AlertProtocol {
-
-    var viewModel: AlertModel?
+class ResultAlertPresenter: AlertProtocol {
+    
     weak var viewController: UIViewController?
         
     func show(quiz result: AlertModel) {
