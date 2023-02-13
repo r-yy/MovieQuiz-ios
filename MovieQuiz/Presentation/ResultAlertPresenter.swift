@@ -5,10 +5,9 @@
 //  Created by Ramil Yanberdin on 02.02.2023.
 //
 
-import Foundation
 import UIKit
 
-class ResultAlertPresenter: AlertProtocol {
+final class ResultAlertPresenter: AlertProtocol {
     
     weak var viewController: UIViewController?
         

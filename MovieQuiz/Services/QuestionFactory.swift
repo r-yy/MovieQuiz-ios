@@ -7,9 +7,9 @@
 
 import Foundation
 
-class QuestionFactory: QuestionFactoryProtocol {
+final class QuestionFactory: QuestionFactoryProtocol {
     
-    weak var delegate: QuestionFactoryDelegate?
+    private weak var delegate: QuestionFactoryDelegate?
     
     private let questions: [QuizQuestion] = [
             QuizQuestion(

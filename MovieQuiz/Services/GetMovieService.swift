@@ -7,7 +7,7 @@
 
 import Foundation
 
-class GetMovieService: GetMovieProtocol {
+final class GetMovieService: GetMovieProtocol {
     
     func getMovie(from jsonString: String) -> Top? {
       

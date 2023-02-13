@@ -20,7 +20,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
     private var resultAlertPresenter: AlertProtocol?
-    private var statistic: StatisticService?
+    private var statisticService: StatisticService?
     
 //    Закомментировал промежуточные задания, не связанные с финальным проектом 5-го спринта
 //    private var getMovieModel: GetMovieProtocol?
@@ -38,7 +38,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         resultAlertPresenter = ResultAlertPresenter()
         resultAlertPresenter?.viewController = self
         
-        statistic = StatisticServiceImplementation()
+        statisticService = StatisticServiceImplementation()
         
 //        Закомментировал промежуточные задания, не связанные с финальным проектом 5-го спринта
 //        var documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
@@ -105,11 +105,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         buttonsEnable(isEnabled: true)
         
         if currentQuestionIndex == questionsAmount - 1 {
-            guard let gamesCount = statistic?.gamesCount,
-                  let correct = statistic?.bestGame.correct,
-                  let total = statistic?.bestGame.total,
-                  let bestGameDate = statistic?.bestGame.date.dateTimeString,
-                  let totalAccuracy = statistic?.totalAccuracy else {
+            guard let gamesCount = statisticService?.gamesCount,
+                  let correct = statisticService?.bestGame.correct,
+                  let total = statisticService?.bestGame.total,
+                  let bestGameDate = statisticService?.bestGame.date.dateTimeString,
+                  let totalAccuracy = statisticService?.totalAccuracy else {
                 return
             }
             let record = "\(correct)/\(total)"
@@ -118,7 +118,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 text: "Ваш результат: \(correctAnswers)/\(questionsAmount)\n Количество сыгранных квизов: \(gamesCount)\n Рекорд: \(record) (\(bestGameDate))\n Средняя точность: \(String(format: "%.2f", totalAccuracy))%",
                 buttonText: "Сыграть еще раз")
             
-            statistic?.store(correct: correctAnswers, total: questionsAmount)
+            statisticService?.store(correct: correctAnswers, total: questionsAmount)
             var alertModel = convertToAlertModel(model: quizResultModel)
             
             alertModel.completition = { [weak self] in
