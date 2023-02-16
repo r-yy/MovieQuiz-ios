@@ -15,38 +15,28 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet weak private var counterLabel: UILabel!
     @IBOutlet weak private var noButton: UIButton!
     @IBOutlet weak private var yesButton: UIButton!
+    @IBOutlet weak private var activityIndicator: UIActivityIndicatorView!
     
     let questionsAmount: Int = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
     private var resultAlertPresenter: AlertProtocol?
     private var statisticService: StatisticService?
-    
-//    Закомментировал промежуточные задания, не связанные с финальным проектом 5-го спринта
-//    private var getMovieModel: GetMovieProtocol?
-//    private var movie: Top?
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 20
         
-        questionFactory = QuestionFactory(delegate: self)
-        questionFactory?.requestNextQuestion()
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        showLoadingIndicator()
+        questionFactory?.loadData()
         
         resultAlertPresenter = ResultAlertPresenter()
         resultAlertPresenter?.viewController = self
         
-        statisticService = StatisticServiceImplementation()
-        
-//        Закомментировал промежуточные задания, не связанные с финальным проектом 5-го спринта
-//        var documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-//        let fileName = "top250MoviesIMDB.json"
-//        documentsURL.appendPathComponent(fileName)
-//        let jsonString = try? String(contentsOf: documentsURL)
-//        getMovieModel = GetMovieService()
-//        movie = getMovieModel?.getMovie(from: jsonString?)
+        statisticService = StatisticServiceImplementation() 
     }
     
     //MARK: - QuestionFactoryDelegate
@@ -55,9 +45,16 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         currentQuestion = question
         let viewModel = convert(model: question)
-        DispatchQueue.main.async { [weak self] in
-                self?.show(quiz: viewModel)
-            }
+        self.show(quiz: viewModel)
+    }
+    
+    func didLoadDataFromServer() {
+        hideLoadingIndicator()
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: Error) {
+        showNetworkError(message: error.localizedDescription)
     }
     
     @IBAction private func noButtonPressed(_ sender: UIButton) {
@@ -77,8 +74,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
    
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
+        
         return QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+            image: UIImage(data: model.image) ?? UIImage(),
             text: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
@@ -155,5 +153,25 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         )
     }
     
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
     
+    private func hideLoadingIndicator() {
+        activityIndicator.isHidden = true
+    }
+    
+    func showNetworkError(message: String) {
+
+        hideLoadingIndicator()
+
+        let alert = AlertModel(title: "Ошибка",
+                               message: message,
+                               buttonText: "Повторите еще раз") { [weak self] in
+            guard let self = self else { return }
+            self.questionFactory?.loadData()
+        }
+        resultAlertPresenter?.show(quiz: alert)
+    }
 }

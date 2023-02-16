@@ -117,16 +117,22 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="5fj-Ar-8tm">
+                                <rect key="frame" x="186.66666666666666" y="428.66666666666669" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="black"/>
                         <constraints>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="yTV-TF-oLz" secondAttribute="trailing" constant="20" id="Gha-Rv-i3T"/>
+                            <constraint firstItem="5fj-Ar-8tm" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="Sxo-7D-1L1"/>
                             <constraint firstItem="yTV-TF-oLz" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="dmP-Zi-jxN"/>
+                            <constraint firstItem="5fj-Ar-8tm" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="iRt-Wm-oFS"/>
                             <constraint firstItem="yTV-TF-oLz" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="ksQ-km-PT7"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="5fj-Ar-8tm" id="JEH-ug-3W1"/>
                         <outlet property="counterLabel" destination="rQk-h1-bvl" id="caL-wg-hsv"/>
                         <outlet property="imageView" destination="cOE-kq-Tdi" id="0OB-03-4mt"/>
                         <outlet property="noButton" destination="amO-mf-oam" id="2ab-z3-obc"/>
