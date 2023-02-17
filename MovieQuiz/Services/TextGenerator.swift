@@ -9,20 +9,20 @@ import Foundation
 
 final class TextGenerator {
     
-    private func randomText(rating: Int) -> (String, Int) {
-        let index = [0, 1].randomElement() ?? 0
-        switch index {
-        case 0:
-            return ("Рейтинг этого фильма меньше, чем \(rating)?",
-                    index)
-        default:
+    private func randomText(rating: Int) -> (String, Bool) {
+        let index = Bool.random()
+        
+        if index {
             return ("Рейтинг этого фильма больше, чем \(rating)?",
                     index)
+        } else {
+            return ("Рейтинг этого фильма меньше, чем \(rating)?",
+                    index)
         }
+
     }
     
     func textGenerator(rating: Float) -> (String, Bool) {
-        
         var text: String
         var correctAnswer: Bool
         
@@ -34,13 +34,14 @@ final class TextGenerator {
                     
         let randomText = randomText(rating: randomRating)
         
-        switch randomText.1 {
-        case 0:
-            correctAnswer = rating < Float(randomRating)
-        default:
-            correctAnswer = rating > Float(randomRating)
-        }
         text = randomText.0
+        
+        if randomText.1 {
+            correctAnswer = rating > Float(randomRating)
+        } else {
+            correctAnswer = rating < Float(randomRating)
+        }
+        
         
         return (text, correctAnswer)
     }

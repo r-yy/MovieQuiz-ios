@@ -12,7 +12,6 @@ final class StatisticServiceImplementation: StatisticService {
     private enum Keys: String {
         case correct, totalAccuracy, bestGame, gamesCount
     }
-    
     private let userDefaults = UserDefaults.standard
     
     var totalAccuracy: Double {
@@ -23,7 +22,6 @@ final class StatisticServiceImplementation: StatisticService {
             userDefaults.set(newValue, forKey: Keys.totalAccuracy.rawValue)
         }
     }
-    
     var gamesCount: Int {
         get {
             userDefaults.integer(forKey: Keys.gamesCount.rawValue)
@@ -32,7 +30,6 @@ final class StatisticServiceImplementation: StatisticService {
             userDefaults.set(newValue, forKey: Keys.gamesCount.rawValue)
         }
     }
-    
     var bestGame: GameRecord {
         get {
             guard let data = userDefaults.data(forKey: Keys.bestGame.rawValue),
