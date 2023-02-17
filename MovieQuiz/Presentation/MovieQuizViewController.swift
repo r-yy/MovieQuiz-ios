@@ -12,6 +12,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var currentQuestion: QuizQuestion?
     private var resultAlertPresenter: AlertProtocol?
     private var statisticService: StatisticService?
+    private var feedbackGenerator: UINotificationFeedbackGenerator?
     
     var correctAnswers: Int = 0
     let questionsAmount: Int = 10
@@ -36,7 +37,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         resultAlertPresenter = ResultAlertPresenter()
         resultAlertPresenter?.viewController = self
         
-        statisticService = StatisticServiceImplementation() 
+        statisticService = StatisticServiceImplementation()
+        
+        feedbackGenerator = UINotificationFeedbackGenerator()
     }
     
     private func show(quiz step: QuizStepViewModel) {
@@ -158,13 +161,29 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         resultAlertPresenter?.show(quiz: alert)
     }
     
+    func notificationOccurred(_ notificationType: UINotificationFeedbackGenerator.FeedbackType) {
+        feedbackGenerator?.prepare()
+    }
+    
     @IBAction private func noButtonPressed(_ sender: UIButton) {
         guard let currentQuestion = currentQuestion else { return }
-        showAnswerResult(isCorrect: false == currentQuestion.correctAnswer)
+        showAnswerResult(isCorrect: !currentQuestion.correctAnswer)
+        
+        if currentQuestion.correctAnswer {
+            feedbackGenerator?.notificationOccurred(.error)
+        } else {
+            feedbackGenerator?.notificationOccurred(.success)
+        }
     }
     
     @IBAction private func yesButtonPressed(_ sender: UIButton) {
         guard let currentQuestion = currentQuestion else { return }
-        showAnswerResult(isCorrect: true == currentQuestion.correctAnswer)
+        showAnswerResult(isCorrect: currentQuestion.correctAnswer)
+        
+        if currentQuestion.correctAnswer {
+            feedbackGenerator?.notificationOccurred(.success)
+        } else {
+            feedbackGenerator?.notificationOccurred(.error)
+        }
     }
 }
