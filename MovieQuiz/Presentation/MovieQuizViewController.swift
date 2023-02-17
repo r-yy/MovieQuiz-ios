@@ -160,11 +160,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
         resultAlertPresenter?.show(quiz: alert)
     }
-    
-    func notificationOccurred(_ notificationType: UINotificationFeedbackGenerator.FeedbackType) {
-        feedbackGenerator?.prepare()
-    }
-    
+
     @IBAction private func noButtonPressed(_ sender: UIButton) {
         guard let currentQuestion = currentQuestion else { return }
         showAnswerResult(isCorrect: !currentQuestion.correctAnswer)
