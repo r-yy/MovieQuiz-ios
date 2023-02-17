@@ -9,5 +9,6 @@ import UIKit
 
 protocol AlertProtocol {
     var viewController: UIViewController? { get set }
+    
     func show(quiz: AlertModel)
 }
