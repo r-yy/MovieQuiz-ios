@@ -24,6 +24,7 @@ final class ResultAlertPresenter: AlertProtocol {
         })
 
         alert.addAction(action)
+        alert.view.accessibilityIdentifier = "ResultAlert"
         viewController?.present(alert, animated: true, completion: nil)
     }
 }

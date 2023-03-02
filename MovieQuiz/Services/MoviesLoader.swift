@@ -13,13 +13,17 @@ protocol MoviesLoading {
 
 struct MoviesLoader: MoviesLoading {
     //MARK: - NetworkClient
-    private let networkClient = NetworkClient()
+    private let networkClient: NetworkRouting
     //MARK: - URL
     private var mostPopularMoviesURL: URL {
-        guard let url = URL(string: "https://imdb-api.com/en/API/Top250Movies/k_od0zkud1") else {
+        guard let url = URL(string: "https://imdb-api.com/en/API/Top250Movies/vdfgdfgd") else {
             preconditionFailure("Unable to construct mostPopularMoviesURL")
         }
         return url
+    }
+    
+    init(networkClient: NetworkRouting = NetworkClient()) {
+        self.networkClient = networkClient
     }
     
     func loadMovies(handler: @escaping (Result<MostPopularMovies, Error>) -> Void) {
