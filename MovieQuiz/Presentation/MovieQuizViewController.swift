@@ -11,7 +11,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var currentQuestion: QuizQuestion?
     private var resultAlertPresenter: AlertProtocol?
     private var statisticService: StatisticService?
-    private var feedbackGenerator: UINotificationFeedbackGenerator?
     private let presenter = MovieQuizPresenter()
     
     var correctAnswers: Int = 0
@@ -38,29 +37,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         statisticService = StatisticServiceImplementation()
         
-        feedbackGenerator = UINotificationFeedbackGenerator()
+        presenter.viewController = self
     }
     
     private func show(quiz step: QuizStepViewModel) {
         imageView.image = step.image
         textLabel.text = step.text
         counterLabel.text = step.questionNumber
-    }
-    
-    private func showAnswerResult(isCorrect: Bool) {
-        buttonsEnable(isEnabled: false)
-        
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 8
-        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        imageView.layer.cornerRadius = 20
-        
-        correctAnswers += isCorrect ? 1 : 0
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
-            self.showNextQuestionOrResults()
-        }
     }
     
     private func showNextQuestionOrResults() {
@@ -124,6 +107,23 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         activityIndicator.startAnimating()
     }
     
+    
+    func showAnswerResult(isCorrect: Bool) {
+        buttonsEnable(isEnabled: false)
+        
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 8
+        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+        imageView.layer.cornerRadius = 20
+        
+        correctAnswers += isCorrect ? 1 : 0
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
+            self.showNextQuestionOrResults()
+        }
+    }
+    
     //MARK: - QuestionFactoryDelegate
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question = question else { return }
@@ -154,24 +154,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
 
     @IBAction private func noButtonPressed(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else { return }
-        showAnswerResult(isCorrect: !currentQuestion.correctAnswer)
-        
-        if currentQuestion.correctAnswer {
-            feedbackGenerator?.notificationOccurred(.error)
-        } else {
-            feedbackGenerator?.notificationOccurred(.success)
-        }
+        presenter.currentQuestion = currentQuestion
+        presenter.noButtonPressed()
     }
     
     @IBAction private func yesButtonPressed(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else { return }
-        showAnswerResult(isCorrect: currentQuestion.correctAnswer)
-        
-        if currentQuestion.correctAnswer {
-            feedbackGenerator?.notificationOccurred(.success)
-        } else {
-            feedbackGenerator?.notificationOccurred(.error)
-        }
+        presenter.currentQuestion = currentQuestion
+        presenter.yesButtonPressed()
     }
 }

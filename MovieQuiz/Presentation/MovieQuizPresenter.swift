@@ -10,8 +10,11 @@ import UIKit
 final class MovieQuizPresenter {
     
     private var currentQuestionIndex = 0
+    private var feedbackGenerator = UINotificationFeedbackGenerator()
     
     let questionsAmount: Int = 10
+    var currentQuestion: QuizQuestion?
+    weak var viewController: MovieQuizViewController?
     
     func convert(model: QuizQuestion) -> QuizStepViewModel {
         return QuizStepViewModel(
@@ -32,4 +35,25 @@ final class MovieQuizPresenter {
         currentQuestionIndex += 1
     }
     
+    func yesButtonPressed() {
+        guard let currentQuestion = currentQuestion else { return }
+        viewController?.showAnswerResult(isCorrect: currentQuestion.correctAnswer)
+        
+        if currentQuestion.correctAnswer {
+            feedbackGenerator.notificationOccurred(.success)
+        } else {
+            feedbackGenerator.notificationOccurred(.error)
+        }
+    }
+    
+    func noButtonPressed() {
+        guard let currentQuestion = currentQuestion else { return }
+        viewController?.showAnswerResult(isCorrect: !currentQuestion.correctAnswer)
+        
+        if currentQuestion.correctAnswer {
+            feedbackGenerator.notificationOccurred(.error)
+        } else {
+            feedbackGenerator.notificationOccurred(.success)
+        }
+    }
 }
