@@ -8,7 +8,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
 
     private var questionFactory: QuestionFactoryProtocol?
-    private var currentQuestion: QuizQuestion?
     private var resultAlertPresenter: AlertProtocol?
     private var statisticService: StatisticService?
     private let presenter = MovieQuizPresenter()
@@ -38,12 +37,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         statisticService = StatisticServiceImplementation()
         
         presenter.viewController = self
-    }
-    
-    private func show(quiz step: QuizStepViewModel) {
-        imageView.image = step.image
-        textLabel.text = step.text
-        counterLabel.text = step.questionNumber
     }
     
     private func showNextQuestionOrResults() {
@@ -126,11 +119,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     //MARK: - QuestionFactoryDelegate
     func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else { return }
-        
-        currentQuestion = question
-        let viewModel = presenter.convert(model: question)
-        self.show(quiz: viewModel)
+        presenter.didReceiveNextQuestion(question: question)
     }
     
     func didLoadDataFromServer() {
@@ -152,14 +141,18 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
         resultAlertPresenter?.show(quiz: alert)
     }
+    
+    func show(quiz step: QuizStepViewModel) {
+        imageView.image = step.image
+        textLabel.text = step.text
+        counterLabel.text = step.questionNumber
+    }
 
     @IBAction private func noButtonPressed(_ sender: UIButton) {
-        presenter.currentQuestion = currentQuestion
         presenter.noButtonPressed()
     }
     
     @IBAction private func yesButtonPressed(_ sender: UIButton) {
-        presenter.currentQuestion = currentQuestion
         presenter.yesButtonPressed()
     }
 }

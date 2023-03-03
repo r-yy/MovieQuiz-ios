@@ -56,4 +56,12 @@ final class MovieQuizPresenter {
             feedbackGenerator.notificationOccurred(.error)
         }
     }
+    
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question = question else { return }
+        
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        self.viewController?.show(quiz: viewModel)
+    }
 }
