@@ -10,11 +10,22 @@ import UIKit
 final class MovieQuizPresenter {
     
     private var currentQuestionIndex = 0
-    private var feedbackGenerator = UINotificationFeedbackGenerator()
+    private var feedbackGenerator: UINotificationFeedbackGenerator?
+    private var statisticService: StatisticService?
     
     let questionsAmount: Int = 10
     var currentQuestion: QuizQuestion?
+    var correctAnswers = 0
+    var questionFactory: QuestionFactoryProtocol?
     weak var viewController: MovieQuizViewController?
+    
+    private func convertToAlertModel(model: QuizResultViewModel) -> AlertModel {
+        return AlertModel(
+            title: model.title,
+            message: model.text,
+            buttonText: model.buttonText
+        )
+    }
     
     func convert(model: QuizQuestion) -> QuizStepViewModel {
         return QuizStepViewModel(
@@ -50,10 +61,11 @@ final class MovieQuizPresenter {
         
         viewController?.showAnswerResult(isCorrect: givenAnswer)
         
+        feedbackGenerator = UINotificationFeedbackGenerator()
         if givenAnswer {
-            feedbackGenerator.notificationOccurred(.success)
+            feedbackGenerator?.notificationOccurred(.success)
         } else {
-            feedbackGenerator.notificationOccurred(.error)
+            feedbackGenerator?.notificationOccurred(.error)
         }
     }
     
@@ -63,5 +75,59 @@ final class MovieQuizPresenter {
         currentQuestion = question
         let viewModel = convert(model: question)
         self.viewController?.show(quiz: viewModel)
+    }
+    
+    func showNextQuestionOrResults() {
+        viewController?.buttonsEnable(isEnabled: true)
+        
+        if isLastQuestion() {
+            
+            statisticService = StatisticServiceImplementation()
+            statisticService?.store(correct: correctAnswers, total: questionsAmount)
+            
+            guard let gamesCount = statisticService?.gamesCount,
+                  let correct = statisticService?.bestGame.correct,
+                  let total = statisticService?.bestGame.total,
+                  let bestGameDate = statisticService?.bestGame.date.dateTimeString,
+                  let totalAccuracy = statisticService?.totalAccuracy else {
+                return
+            }
+            let record = "\(correct)/\(total)"
+            let quizResultModel = QuizResultViewModel(
+                title: "Этот раунд окончен!",
+                text: "Ваш результат: \(correctAnswers)/\(questionsAmount)\n Количество сыгранных квизов: \(gamesCount)\n Рекорд: \(record) (\(bestGameDate))\n Средняя точность: \(String(format: "%.2f", totalAccuracy))%",
+                buttonText: "Сыграть еще раз")
+            
+            var alertModel = convertToAlertModel(model: quizResultModel)
+            
+            alertModel.completition = { [weak self] in
+                guard let self = self else { return }
+                self.resetQuestionIndex()
+                self.correctAnswers = 0
+                self.questionFactory?.requestNextQuestion()
+            }
+            show(quiz: alertModel)
+            
+        } else {
+            switchToNextQuestion()
+            questionFactory?.requestNextQuestion()
+        }
+    }
+    
+    func show(quiz result: AlertModel) {
+
+        let alert = UIAlertController(
+            title: result.title,
+            message: result.message,
+            preferredStyle: .alert)
+
+        let action = UIAlertAction(
+            title: result.buttonText, style: .default, handler: { _ in
+                result.completition?()
+        })
+
+        alert.addAction(action)
+        alert.view.accessibilityIdentifier = "ResultAlert"
+        viewController?.present(alert, animated: true, completion: nil)
     }
 }

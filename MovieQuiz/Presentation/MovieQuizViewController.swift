@@ -8,8 +8,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
 
     private var questionFactory: QuestionFactoryProtocol?
-    private var resultAlertPresenter: AlertProtocol?
-    private var statisticService: StatisticService?
     private let presenter = MovieQuizPresenter()
     
     var correctAnswers: Int = 0
@@ -31,68 +29,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         showLoadingIndicator()
         questionFactory?.loadData()
         
-        resultAlertPresenter = ResultAlertPresenter()
-        resultAlertPresenter?.viewController = self
-        
-        statisticService = StatisticServiceImplementation()
-        
         presenter.viewController = self
-    }
-    
-    private func showNextQuestionOrResults() {
-        buttonsEnable(isEnabled: true)
-        
-        if presenter.isLastQuestion() {
-            
-            statisticService?.store(correct: correctAnswers, total: presenter.questionsAmount)
-            
-            guard let gamesCount = statisticService?.gamesCount,
-                  let correct = statisticService?.bestGame.correct,
-                  let total = statisticService?.bestGame.total,
-                  let bestGameDate = statisticService?.bestGame.date.dateTimeString,
-                  let totalAccuracy = statisticService?.totalAccuracy else {
-                return
-            }
-            let record = "\(correct)/\(total)"
-            let quizResultModel = QuizResultViewModel(
-                title: "Этот раунд окончен!",
-                text: "Ваш результат: \(correctAnswers)/\(presenter.questionsAmount)\n Количество сыгранных квизов: \(gamesCount)\n Рекорд: \(record) (\(bestGameDate))\n Средняя точность: \(String(format: "%.2f", totalAccuracy))%",
-                buttonText: "Сыграть еще раз")
-            
-            var alertModel = convertToAlertModel(model: quizResultModel)
-            
-            alertModel.completition = { [weak self] in
-                guard let self = self else { return }
-                self.imageView.layer.borderWidth = 0
-                self.presenter.resetQuestionIndex()
-                self.correctAnswers = 0
-                self.questionFactory?.requestNextQuestion()
-            }
-            resultAlertPresenter?.show(quiz: alertModel)
-            
-        } else {
-            presenter.switchToNextQuestion()
-            self.imageView.layer.borderWidth = 0
-            questionFactory?.requestNextQuestion()
-        }
-    }
-    
-    private func buttonsEnable(isEnabled: Bool) {
-        if isEnabled {
-            noButton.isEnabled = true
-            yesButton.isEnabled = true
-        } else {
-            noButton.isEnabled = false
-            yesButton.isEnabled = false
-        }
-    }
-    
-    private func convertToAlertModel(model: QuizResultViewModel) -> AlertModel {
-        return AlertModel(
-            title: model.title,
-            message: model.text,
-            buttonText: model.buttonText
-        )
     }
     
     private func showLoadingIndicator() {
@@ -113,7 +50,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
-            self.showNextQuestionOrResults()
+            self.imageView.layer.borderWidth = 0
+            self.presenter.correctAnswers = self.correctAnswers
+            self.presenter.questionFactory = self.questionFactory
+            self.presenter.showNextQuestionOrResults()
         }
     }
     
@@ -139,13 +79,23 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             guard let self = self else { return }
             self.questionFactory?.loadData()
         }
-        resultAlertPresenter?.show(quiz: alert)
+        presenter.show(quiz: alert)
     }
     
     func show(quiz step: QuizStepViewModel) {
         imageView.image = step.image
         textLabel.text = step.text
         counterLabel.text = step.questionNumber
+    }
+    
+    func buttonsEnable(isEnabled: Bool) {
+        if isEnabled {
+            noButton.isEnabled = true
+            yesButton.isEnabled = true
+        } else {
+            noButton.isEnabled = false
+            yesButton.isEnabled = false
+        }
     }
 
     @IBAction private func noButtonPressed(_ sender: UIButton) {
