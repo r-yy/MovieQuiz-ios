@@ -8,7 +8,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
 
     private var questionFactory: QuestionFactoryProtocol?
-    private let presenter = MovieQuizPresenter()
+    private var presenter: MovieQuizPresenter!
     
     @IBOutlet weak private var imageView: UIImageView!
     @IBOutlet weak private var textLabel: UILabel!
@@ -27,7 +27,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         showLoadingIndicator()
         questionFactory?.loadData()
         
-        presenter.viewController = self
+        presenter = MovieQuizPresenter(viewController: self)
     }
     
     private func showLoadingIndicator() {

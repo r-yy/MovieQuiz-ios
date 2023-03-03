@@ -19,6 +19,10 @@ final class MovieQuizPresenter {
     var questionFactory: QuestionFactoryProtocol?
     weak var viewController: MovieQuizViewController?
     
+    init(viewController: MovieQuizViewController) {
+        self.viewController = viewController
+    }
+    
     private func convertToAlertModel(model: QuizResultViewModel) -> AlertModel {
         return AlertModel(
             title: model.title,
