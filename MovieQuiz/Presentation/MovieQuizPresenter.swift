@@ -38,8 +38,9 @@ final class MovieQuizPresenter {
         currentQuestionIndex == questionsAmount - 1
     }
     
-    func resetQuestionIndex() {
+    func restartGame() {
         currentQuestionIndex = 0
+        correctAnswers = 0
     }
     
     func switchToNextQuestion() {
@@ -64,6 +65,7 @@ final class MovieQuizPresenter {
         feedbackGenerator = UINotificationFeedbackGenerator()
         if givenAnswer {
             feedbackGenerator?.notificationOccurred(.success)
+            correctAnswers += 1
         } else {
             feedbackGenerator?.notificationOccurred(.error)
         }
@@ -102,8 +104,7 @@ final class MovieQuizPresenter {
             
             alertModel.completition = { [weak self] in
                 guard let self = self else { return }
-                self.resetQuestionIndex()
-                self.correctAnswers = 0
+                self.restartGame()
                 self.questionFactory?.requestNextQuestion()
             }
             show(quiz: alertModel)
