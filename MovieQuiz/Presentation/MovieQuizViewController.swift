@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
     // MARK: - Lifecycle
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -19,36 +19,16 @@ final class MovieQuizViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 20
         
         presenter = MovieQuizPresenter(viewController: self)
         
         showLoadingIndicator()
-
-        
-        
     }
     
     func showLoadingIndicator() {
         activityIndicator.hidesWhenStopped = true
         activityIndicator.startAnimating()
-    }
-    
-    
-    func showAnswerResult(isCorrect: Bool) {
-        buttonsEnable(isEnabled: false)
-        
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 8
-        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        imageView.layer.cornerRadius = 20
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
-            self.imageView.layer.borderWidth = 0
-            self.presenter.showNextQuestionOrResults()
-        }
     }
     
     func showNetworkError(message: String) {
@@ -93,6 +73,17 @@ final class MovieQuizViewController: UIViewController {
             noButton.isEnabled = false
             yesButton.isEnabled = false
         }
+    }
+    
+    func highlightImageBorder(isCorrect: Bool) {
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 8
+        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+        imageView.layer.cornerRadius = 20
+    }
+    
+    func disableImageBorder() {
+        imageView.layer.borderWidth = 0
     }
 
     @IBAction private func noButtonPressed(_ sender: UIButton) {

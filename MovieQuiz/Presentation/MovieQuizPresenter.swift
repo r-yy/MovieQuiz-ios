@@ -15,10 +15,10 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private var statisticService: StatisticService?
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
-    private weak var viewController: MovieQuizViewController?
+    private var viewController: MovieQuizViewControllerProtocol?
     private let questionsAmount: Int = 10
     
-    init(viewController: MovieQuizViewController) {
+    init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
         
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
@@ -57,6 +57,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         currentQuestionIndex = 0
         correctAnswers = 0
         questionFactory?.requestNextQuestion()
+        viewController?.disableImageBorder()
     }
     
     func switchToNextQuestion() {
@@ -76,7 +77,8 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         
         let givenAnswer = isYes == currentQuestion.correctAnswer
         
-        viewController?.showAnswerResult(isCorrect: givenAnswer)
+        viewController?.buttonsEnable(isEnabled: false)
+        proceedWithAnswer(isCorrect: givenAnswer)
         
         feedbackGenerator = UINotificationFeedbackGenerator()
         if givenAnswer {
@@ -87,7 +89,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
     }
     
-    func showNextQuestionOrResults() {
+    func proceedToNextQuestionOrResults() {
         viewController?.buttonsEnable(isEnabled: true)
         
         if isLastQuestion() {
@@ -115,8 +117,18 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             viewController?.show(quiz: resultAlertModel)
             
         } else {
+            viewController?.disableImageBorder()
             switchToNextQuestion()
             questionFactory?.requestNextQuestion()
+        }
+    }
+    
+    func proceedWithAnswer(isCorrect: Bool) {
+        viewController?.highlightImageBorder(isCorrect: isCorrect)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
+            self.proceedToNextQuestionOrResults()
         }
     }
 }
