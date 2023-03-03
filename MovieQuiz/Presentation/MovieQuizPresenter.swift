@@ -23,14 +23,6 @@ final class MovieQuizPresenter {
         self.viewController = viewController
     }
     
-    private func convertToAlertModel(model: QuizResultViewModel) -> AlertModel {
-        return AlertModel(
-            title: model.title,
-            message: model.text,
-            buttonText: model.buttonText
-        )
-    }
-    
     func convert(model: QuizQuestion) -> QuizStepViewModel {
         return QuizStepViewModel(
             image: UIImage(data: model.image) ?? UIImage(),
@@ -99,40 +91,21 @@ final class MovieQuizPresenter {
                 return
             }
             let record = "\(correct)/\(total)"
-            let quizResultModel = QuizResultViewModel(
+            var resultAlertModel = ResultAlertModel(
                 title: "Этот раунд окончен!",
-                text: "Ваш результат: \(correctAnswers)/\(questionsAmount)\n Количество сыгранных квизов: \(gamesCount)\n Рекорд: \(record) (\(bestGameDate))\n Средняя точность: \(String(format: "%.2f", totalAccuracy))%",
+                message: "Ваш результат: \(correctAnswers)/\(questionsAmount)\n Количество сыгранных квизов: \(gamesCount)\n Рекорд: \(record) (\(bestGameDate))\n Средняя точность: \(String(format: "%.2f", totalAccuracy))%",
                 buttonText: "Сыграть еще раз")
             
-            var alertModel = convertToAlertModel(model: quizResultModel)
-            
-            alertModel.completition = { [weak self] in
+            resultAlertModel.completition = { [weak self] in
                 guard let self = self else { return }
                 self.restartGame()
                 self.questionFactory?.requestNextQuestion()
             }
-            show(quiz: alertModel)
+            viewController?.show(quiz: resultAlertModel)
             
         } else {
             switchToNextQuestion()
             questionFactory?.requestNextQuestion()
         }
-    }
-    
-    func show(quiz result: AlertModel) {
-
-        let alert = UIAlertController(
-            title: result.title,
-            message: result.message,
-            preferredStyle: .alert)
-
-        let action = UIAlertAction(
-            title: result.buttonText, style: .default, handler: { _ in
-                result.completition?()
-        })
-
-        alert.addAction(action)
-        alert.view.accessibilityIdentifier = "ResultAlert"
-        viewController?.present(alert, animated: true, completion: nil)
     }
 }

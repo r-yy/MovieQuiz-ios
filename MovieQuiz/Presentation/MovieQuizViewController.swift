@@ -68,19 +68,36 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     func showNetworkError(message: String) {
         showLoadingIndicator()
-        let alert = AlertModel(title: "Ошибка",
+        let alert = ResultAlertModel(title: "Ошибка",
                                message: message,
                                buttonText: "Повторите еще раз") { [weak self] in
             guard let self = self else { return }
             self.questionFactory?.loadData()
         }
-        presenter.show(quiz: alert)
+        show(quiz: alert)
     }
     
     func show(quiz step: QuizStepViewModel) {
         imageView.image = step.image
         textLabel.text = step.text
         counterLabel.text = step.questionNumber
+    }
+    
+    func show(quiz result: ResultAlertModel) {
+
+        let alert = UIAlertController(
+            title: result.title,
+            message: result.message,
+            preferredStyle: .alert)
+
+        let action = UIAlertAction(
+            title: result.buttonText, style: .default, handler: { _ in
+                result.completition?()
+        })
+
+        alert.addAction(action)
+        alert.view.accessibilityIdentifier = "ResultAlert"
+        present(alert, animated: true, completion: nil)
     }
     
     func buttonsEnable(isEnabled: Bool) {
