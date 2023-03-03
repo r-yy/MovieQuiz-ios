@@ -7,20 +7,23 @@
 
 import UIKit
 
-final class MovieQuizPresenter {
+final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     private var currentQuestionIndex = 0
+    private var correctAnswers = 0
     private var feedbackGenerator: UINotificationFeedbackGenerator?
     private var statisticService: StatisticService?
-    
-    let questionsAmount: Int = 10
-    var currentQuestion: QuizQuestion?
-    var correctAnswers = 0
-    var questionFactory: QuestionFactoryProtocol?
-    weak var viewController: MovieQuizViewController?
+    private var questionFactory: QuestionFactoryProtocol?
+    private var currentQuestion: QuizQuestion?
+    private weak var viewController: MovieQuizViewController?
+    private let questionsAmount: Int = 10
     
     init(viewController: MovieQuizViewController) {
         self.viewController = viewController
+        
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        questionFactory?.loadData()
+        viewController.showLoadingIndicator()
     }
     
     func convert(model: QuizQuestion) -> QuizStepViewModel {
@@ -30,6 +33,22 @@ final class MovieQuizPresenter {
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
     
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question = question else { return }
+        
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        self.viewController?.show(quiz: viewModel)
+    }
+    
+    func didLoadDataFromServer() {
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: Error) {
+        viewController?.showNetworkError(message: error.localizedDescription)
+    }
+    
     func isLastQuestion() -> Bool {
         currentQuestionIndex == questionsAmount - 1
     }
@@ -37,6 +56,7 @@ final class MovieQuizPresenter {
     func restartGame() {
         currentQuestionIndex = 0
         correctAnswers = 0
+        questionFactory?.requestNextQuestion()
     }
     
     func switchToNextQuestion() {
@@ -67,14 +87,6 @@ final class MovieQuizPresenter {
         }
     }
     
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else { return }
-        
-        currentQuestion = question
-        let viewModel = convert(model: question)
-        self.viewController?.show(quiz: viewModel)
-    }
-    
     func showNextQuestionOrResults() {
         viewController?.buttonsEnable(isEnabled: true)
         
@@ -99,7 +111,6 @@ final class MovieQuizPresenter {
             resultAlertModel.completition = { [weak self] in
                 guard let self = self else { return }
                 self.restartGame()
-                self.questionFactory?.requestNextQuestion()
             }
             viewController?.show(quiz: resultAlertModel)
             

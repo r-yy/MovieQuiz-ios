@@ -1,13 +1,12 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController {
     // MARK: - Lifecycle
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
           return .lightContent
     }
-
-    private var questionFactory: QuestionFactoryProtocol?
+    
     private var presenter: MovieQuizPresenter!
     
     @IBOutlet weak private var imageView: UIImageView!
@@ -23,14 +22,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 20
         
-        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
-        showLoadingIndicator()
-        questionFactory?.loadData()
-        
         presenter = MovieQuizPresenter(viewController: self)
+        
+        showLoadingIndicator()
+
+        
+        
     }
     
-    private func showLoadingIndicator() {
+    func showLoadingIndicator() {
         activityIndicator.hidesWhenStopped = true
         activityIndicator.startAnimating()
     }
@@ -47,23 +47,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
             self.imageView.layer.borderWidth = 0
-            self.presenter.questionFactory = self.questionFactory
             self.presenter.showNextQuestionOrResults()
         }
-    }
-    
-    //MARK: - QuestionFactoryDelegate
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        presenter.didReceiveNextQuestion(question: question)
-    }
-    
-    func didLoadDataFromServer() {
-        questionFactory?.requestNextQuestion()
-        activityIndicator.stopAnimating()
-    }
-    
-    func didFailToLoadData(with error: Error) {
-        showNetworkError(message: error.localizedDescription)
     }
     
     func showNetworkError(message: String) {
@@ -72,7 +57,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                                message: message,
                                buttonText: "Повторите еще раз") { [weak self] in
             guard let self = self else { return }
-            self.questionFactory?.loadData()
+            self.presenter.restartGame()
         }
         show(quiz: alert)
     }
