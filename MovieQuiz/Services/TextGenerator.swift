@@ -42,7 +42,6 @@ final class TextGenerator {
             correctAnswer = rating < Float(randomRating)
         }
         
-        
         return (text, correctAnswer)
     }
 }

@@ -12,5 +12,4 @@ struct ResultAlertModel {
     var message: String
     var buttonText: String
     var completition: (() -> Void)?
-    
 }

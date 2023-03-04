@@ -78,7 +78,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         
         let givenAnswer = isYes == currentQuestion.correctAnswer
         
-        
         proceedWithAnswer(isCorrect: givenAnswer)
         
         feedbackGenerator = UINotificationFeedbackGenerator()
@@ -112,9 +111,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
                 self.restartGame()
             }
             viewController?.show(quiz: resultAlertModel)
-            
         } else {
-            
             viewController?.disableImageBorder()
             switchToNextQuestion()
             questionFactory?.requestNextQuestion()
