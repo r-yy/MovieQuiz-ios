@@ -19,9 +19,9 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     override func viewDidLoad() {
         super.viewDidLoad()
     
-        presenter = MovieQuizPresenter(viewController: self)
-        
         showLoadingIndicator()
+        
+        presenter = MovieQuizPresenter(viewController: self)
     }
     
     func showLoadingIndicator() {
@@ -35,7 +35,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
                                message: message,
                                buttonText: "Повторите еще раз") { [weak self] in
             guard let self = self else { return }
-            self.presenter.restartGame()
+            self.presenter.loadDataWhenNetworkDisabled()
         }
         show(quiz: alert)
     }
@@ -43,6 +43,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     func show(quiz step: QuizStepViewModel) {
         imageView.image = step.image
         buttonsEnable(isEnabled: true)
+        activityIndicator.stopAnimating()
         textLabel.text = step.text
         counterLabel.text = step.questionNumber
     }

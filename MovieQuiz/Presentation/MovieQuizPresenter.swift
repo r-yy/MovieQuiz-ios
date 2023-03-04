@@ -130,4 +130,8 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             self.proceedToNextQuestionOrResults()
         }
     }
+    
+    func loadDataWhenNetworkDisabled() {
+        questionFactory?.loadData()
+    }
 }
