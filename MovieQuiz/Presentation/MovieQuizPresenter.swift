@@ -21,9 +21,10 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
         
+        statisticService = StatisticServiceImplementation()
+        
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
-        viewController.showLoadingIndicator()
     }
     
     func convert(model: QuizQuestion) -> QuizStepViewModel {
@@ -77,24 +78,20 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         
         let givenAnswer = isYes == currentQuestion.correctAnswer
         
-        viewController?.buttonsEnable(isEnabled: false)
+        
         proceedWithAnswer(isCorrect: givenAnswer)
         
         feedbackGenerator = UINotificationFeedbackGenerator()
         if givenAnswer {
             feedbackGenerator?.notificationOccurred(.success)
-            correctAnswers += 1
         } else {
             feedbackGenerator?.notificationOccurred(.error)
         }
     }
     
     func proceedToNextQuestionOrResults() {
-        viewController?.buttonsEnable(isEnabled: true)
-        
         if isLastQuestion() {
             
-            statisticService = StatisticServiceImplementation()
             statisticService?.store(correct: correctAnswers, total: questionsAmount)
             
             guard let gamesCount = statisticService?.gamesCount,
@@ -117,6 +114,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             viewController?.show(quiz: resultAlertModel)
             
         } else {
+            
             viewController?.disableImageBorder()
             switchToNextQuestion()
             questionFactory?.requestNextQuestion()
@@ -124,6 +122,10 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     func proceedWithAnswer(isCorrect: Bool) {
+        if isCorrect {
+            correctAnswers += 1
+        }
+        
         viewController?.highlightImageBorder(isCorrect: isCorrect)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in

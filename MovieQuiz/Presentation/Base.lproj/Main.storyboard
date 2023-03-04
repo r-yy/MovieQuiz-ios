@@ -55,6 +55,12 @@
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="cOE-kq-Tdi" secondAttribute="height" multiplier="2:3" id="Cv1-Fb-e8l"/>
                                         </constraints>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                <integer key="value" value="20"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
                                     </imageView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="btv-ZZ-GhF">
                                         <rect key="frame" x="0.0" y="593.33333333333337" width="353" height="80"/>

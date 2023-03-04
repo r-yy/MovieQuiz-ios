@@ -18,9 +18,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        imageView.layer.cornerRadius = 20
-        
+    
         presenter = MovieQuizPresenter(viewController: self)
         
         showLoadingIndicator()
@@ -44,6 +42,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     
     func show(quiz step: QuizStepViewModel) {
         imageView.image = step.image
+        buttonsEnable(isEnabled: true)
         textLabel.text = step.text
         counterLabel.text = step.questionNumber
     }
@@ -66,16 +65,12 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     }
     
     func buttonsEnable(isEnabled: Bool) {
-        if isEnabled {
-            noButton.isEnabled = true
-            yesButton.isEnabled = true
-        } else {
-            noButton.isEnabled = false
-            yesButton.isEnabled = false
-        }
+        noButton.isEnabled = isEnabled
+        yesButton.isEnabled = isEnabled
     }
     
     func highlightImageBorder(isCorrect: Bool) {
+        buttonsEnable(isEnabled: false)
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
         imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor

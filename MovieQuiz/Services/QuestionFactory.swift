@@ -69,7 +69,6 @@ final class QuestionFactory: QuestionFactoryProtocol {
             
             guard let movie = self.movies[safe: index] else {
                 return
-                
             }
             
             var imageData = Data()
@@ -80,7 +79,6 @@ final class QuestionFactory: QuestionFactoryProtocol {
                     guard let self = self else { return }
                     self.delegate?.didFailToLoadData(with: error)
                 }
-                
             }
             
             let rating = Float(movie.rating) ?? 0
