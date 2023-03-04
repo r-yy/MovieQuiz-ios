@@ -14,13 +14,17 @@ struct GameRecord: Codable {
     
     func compareGames(currentGame game: GameRecord) -> GameRecord {
         
-        let currentGameResult = Double(game.correct) / Double(game.total)
-        let bestGameResult = Double(self.correct) / Double(self.total)
+        let bestCorrect = [game.correct, self.correct].max() ?? self.correct
         
-        let bestCorrect = currentGameResult > bestGameResult ? game.correct : self.correct
+        let bestDate: Date
+        if bestCorrect == game.correct {
+            bestDate = game.date
+        } else {
+            bestDate = self.date
+        }
         
         return GameRecord(correct: bestCorrect,
                           total: self.total,
-                          date: self.date)
+                          date: bestDate)
     }
 }
