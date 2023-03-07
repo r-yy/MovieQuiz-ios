@@ -1,7 +1,6 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
-    // MARK: - Lifecycle
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
           return .lightContent
@@ -19,13 +18,13 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     override func viewDidLoad() {
         super.viewDidLoad()
     
+        activityIndicator.hidesWhenStopped = true
         showLoadingIndicator()
         
         presenter = MovieQuizPresenter(viewController: self)
     }
     
     func showLoadingIndicator() {
-        activityIndicator.hidesWhenStopped = true
         activityIndicator.startAnimating()
     }
     
@@ -42,8 +41,8 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     
     func show(quiz step: QuizStepViewModel) {
         imageView.image = step.image
-        buttonsEnable(isEnabled: true)
         activityIndicator.stopAnimating()
+        buttonsEnable(isEnabled: true)
         textLabel.text = step.text
         counterLabel.text = step.questionNumber
     }

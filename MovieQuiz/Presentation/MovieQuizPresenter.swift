@@ -9,19 +9,21 @@ import UIKit
 
 final class MovieQuizPresenter: QuestionFactoryDelegate {
     
-    private var currentQuestionIndex = 0
-    private var correctAnswers = 0
+    private let questionsAmount: Int = 10
+    private var currentQuestionIndex: Int = 0
+    private var correctAnswers: Int = 0
     private var feedbackGenerator: UINotificationFeedbackGenerator?
     private var statisticService: StatisticService?
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
     private var viewController: MovieQuizViewControllerProtocol?
-    private let questionsAmount: Int = 10
     
     init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
         
         statisticService = StatisticServiceImplementation()
+        
+        feedbackGenerator = UINotificationFeedbackGenerator()
         
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
@@ -80,7 +82,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         
         proceedWithAnswer(isCorrect: givenAnswer)
         
-        feedbackGenerator = UINotificationFeedbackGenerator()
         if givenAnswer {
             feedbackGenerator?.notificationOccurred(.success)
         } else {
@@ -89,10 +90,9 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     func proceedToNextQuestionOrResults() {
+        
         if isLastQuestion() {
-            
             statisticService?.store(correct: correctAnswers, total: questionsAmount)
-            
             guard let gamesCount = statisticService?.gamesCount,
                   let correct = statisticService?.bestGame.correct,
                   let total = statisticService?.bestGame.total,
@@ -100,17 +100,27 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
                   let totalAccuracy = statisticService?.totalAccuracy else {
                 return
             }
+            
             let record = "\(correct)/\(total)"
+            let title = "Этот раунд окончен!"
+            let message =
+                "Ваш результат: \(correctAnswers)/\(questionsAmount)" +
+                "\n Количество сыгранных квизов: \(gamesCount)" +
+                "\n Рекорд: \(record) (\(bestGameDate))" +
+                "\n Средняя точность: \(String(format: "%.2f", totalAccuracy))%"
+            let buttonText = "Сыграть еще раз"
+            
             var resultAlertModel = ResultAlertModel(
-                title: "Этот раунд окончен!",
-                message: "Ваш результат: \(correctAnswers)/\(questionsAmount)\n Количество сыгранных квизов: \(gamesCount)\n Рекорд: \(record) (\(bestGameDate))\n Средняя точность: \(String(format: "%.2f", totalAccuracy))%",
-                buttonText: "Сыграть еще раз")
+                title: title,
+                message: message,
+                buttonText: buttonText)
             
             resultAlertModel.completition = { [weak self] in
                 guard let self = self else { return }
                 self.restartGame()
             }
             viewController?.show(quiz: resultAlertModel)
+            
         } else {
             viewController?.disableImageBorder()
             switchToNextQuestion()
@@ -119,9 +129,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     func proceedWithAnswer(isCorrect: Bool) {
-        if isCorrect {
-            correctAnswers += 1
-        }
+        if isCorrect { correctAnswers += 1 }
         
         viewController?.highlightImageBorder(isCorrect: isCorrect)
         

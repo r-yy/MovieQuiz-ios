@@ -8,7 +8,7 @@
 import XCTest
 @testable import MovieQuiz
 
-class MoviesLoaderTest: XCTestCase {
+final class MoviesLoaderTest: XCTestCase {
     func testSuccesLoading() throws {
         //Given
         let stubsNetworkClient = StubNetworkClient(emulateError: false)

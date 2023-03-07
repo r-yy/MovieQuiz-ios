@@ -33,8 +33,6 @@ final class MovieQuizUITests: XCTestCase {
     }
     
     func testYesButton() throws {
-        sleep(3)
-        
         let firstPoster = app.images["Poster"]
         let firstPosterData = firstPoster.screenshot().pngRepresentation
         
@@ -51,8 +49,6 @@ final class MovieQuizUITests: XCTestCase {
     }
     
     func testNoButton() throws {
-        sleep(3)
-        
         let firstPoster = app.images["Poster"]
         let firstPosterData = firstPoster.screenshot().pngRepresentation
         
@@ -70,10 +66,8 @@ final class MovieQuizUITests: XCTestCase {
     
     func testResultAlertShow() throws {
         
-        var count = 10
-        while count > 0 {
+        for _ in 1...10 {
             app.buttons["Yes"].tap()
-            count -= 1
             sleep(2)
         }
         
@@ -86,10 +80,8 @@ final class MovieQuizUITests: XCTestCase {
     
     func testResultAlertTapButton() throws {
         
-        var count = 10
-        while count > 0 {
-            app.buttons["Yes"].tap()
-            count -= 1
+        for _ in 1...10 {
+            app.buttons["No"].tap()
             sleep(2)
         }
         
