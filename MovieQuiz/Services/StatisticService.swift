@@ -56,11 +56,10 @@ final class StatisticServiceImplementation: StatisticService {
         let currentGame = GameRecord(correct: count,
                               total: amount,
                               date: Date())
-        bestGame = currentGame.compareGames(currentGame: bestGame)
+        
+        bestGame = currentGame.compareWith(bestGame)
         
         let bestTotalAccuracy = (Double(bestGame.correct) / Double(bestGame.total)) * 100
         totalAccuracy = bestTotalAccuracy
     }
 }
-
-
