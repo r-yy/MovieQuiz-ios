@@ -92,16 +92,15 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     func proceedToNextQuestionOrResults() {
         
         if isLastQuestion() {
-            statisticService?.store(correct: correctAnswers, total: questionsAmount)
-            guard let gamesCount = statisticService?.gamesCount,
-                  let correct = statisticService?.bestGame.correct,
-                  let total = statisticService?.bestGame.total,
-                  let bestGameDate = statisticService?.bestGame.date.dateTimeString,
-                  let totalAccuracy = statisticService?.totalAccuracy else {
-                return
-            }
+            guard let statisticService = statisticService else { return }
             
-            let record = "\(correct)/\(total)"
+            statisticService.store(correct: correctAnswers, total: questionsAmount)
+            
+            let gamesCount = statisticService.gamesCount
+            let record = "\(statisticService.bestGame.correct)/\(statisticService.bestGame.total)"
+            let bestGameDate = statisticService.bestGame.date.dateTimeString
+            let totalAccuracy = statisticService.totalAccuracy
+            
             let title = "Этот раунд окончен!"
             let message =
                 "Ваш результат: \(correctAnswers)/\(questionsAmount)" +
